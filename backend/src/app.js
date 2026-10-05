@@ -1,0 +1,16 @@
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+import readingRoutes from "./routes/readingRoutes.js";
+import deviceRoutes from "./routes/deviceRoutes.js";
+import {errorHandler} from "./middleware/errorHandler.js";
+dotenv.config();
+const app=express();
+app.use(cors({origin:process.env.CORS_ORIGIN||"http://localhost:5173",methods:["GET","POST","OPTIONS"],allowedHeaders:["Content-Type"]}));
+app.use(express.json({limit:"10kb"}));
+app.get("/api/health",(req,res)=>res.json({success:true,message:"Environmental Monitoring API is running",timestamp:new Date().toISOString()}));
+app.use("/api/readings",readingRoutes);
+app.use("/api/device",deviceRoutes);
+app.use((req,res)=>res.status(404).json({success:false,message:`Route not found: ${req.method} ${req.originalUrl}`}));
+app.use(errorHandler);
+export default app;
